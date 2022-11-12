@@ -40,13 +40,17 @@ const App = defineComponent({
   },
 
   computed: {
-    filteredEmails () {
+    marked () {
       const searchFilter = (email) =>
         email
           .toLowerCase()
           .includes(this.search.toLowerCase());
 
-      return this.emails.filter((email) => this.search.length > 0 && searchFilter(email))
+      const filtered = this.emails.filter((email) => this.search.length > 0 && searchFilter(email))
+      return filtered.reduce(function(map, email){
+          map[email] = true;
+          return map;
+        }, {});
     },
   },
 
