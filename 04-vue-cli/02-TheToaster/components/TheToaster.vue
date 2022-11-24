@@ -1,7 +1,8 @@
 <template>
   <div class="toasts">
     <div v-for="toast in toasts.values()" :key="toast.timer" class="toast" :class="toast.type">
-      <ui-toast :icon="toast.icon">{{ toast.message }}</ui-toast>
+      <ui-toast :icon="toast.icon" />
+      <span>{{ toast.message }}</span>
     </div>
   </div>
 </template>

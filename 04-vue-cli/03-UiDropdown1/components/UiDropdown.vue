@@ -1,11 +1,11 @@
 <template>
   <div class="dropdown" :class="showOpened">
-    <button type="button" class="dropdown__toggle" :class="toggleIcon" @click="opened = !opened">
+    <button type="button" class="dropdown__toggle" :class="toggleIcon" @click="openedDropdown = !openedDropdown">
       <ui-icon v-if="toggleIcon && selectedIcon" :icon="selectedIcon" class="dropdown__icon" />
       <span>{{ selectedTitle }}</span>
     </button>
 
-    <div v-show="opened" class="dropdown__menu" role="listbox">
+    <div v-show="openedDropdown" class="dropdown__menu" role="listbox">
       <button
         v-for="option in options"
         :key="option.value"
@@ -53,25 +53,23 @@ export default {
 
   data() {
     return {
-      opened: false,
+      openedDropdown: false,
       selectedTitle: null,
-      itemIcon: null,
-      toggleIcon: null,
-      icons: null,
       selectedIcon: null,
-      selected: this.modelValue,
+      toggleIcon: null,
+      itemIcon: null,
+      selected: null,
     };
   },
 
   computed: {
     showOpened() {
-      return this.opened ? 'dropdown_opened' : null;
+      return this.openedDropdown ? 'dropdown_opened' : null;
     },
   },
 
   watch: {
-    modelValue(newValue) {
-      this.selected = newValue;
+    modelValue() {
       this.checkOptions();
     },
     options: {
@@ -90,7 +88,7 @@ export default {
     select(option) {
       this.selectedTitle = option.text;
       this.selectedIcon = option.icon;
-      this.opened = false;
+      this.openedDropdown = false;
       this.$emit('update:modelValue', option.value);
     },
     change(e) {
@@ -100,6 +98,7 @@ export default {
       this.itemIcon = null;
       this.toggleIcon = null;
       this.selectedTitle = this.title;
+      this.selected = this.modelValue;
       for (let option of this.options) {
         if (option.icon) {
           this.itemIcon = 'dropdown__item_icon';
