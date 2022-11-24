@@ -6,14 +6,25 @@
     </button>
 
     <div v-show="opened" class="dropdown__menu" role="listbox">
-      <div v-for="option in options" :key="option.value">
-        <button class="dropdown__item" :class="itemIcon" role="option" type="button" @click="select(option)">
-          <ui-icon v-if="option.icon" :icon="option.icon" class="dropdown__icon" />
-          {{ option.text }}
-        </button>
-      </div>
+      <button
+        v-for="option in options"
+        :key="option.value"
+        class="dropdown__item"
+        :class="itemIcon"
+        role="option"
+        type="button"
+        @click="select(option)"
+      >
+        <ui-icon v-if="option.icon" :icon="option.icon" class="dropdown__icon" />
+        {{ option.text }}
+      </button>
     </div>
   </div>
+  <select v-model="selected" @change="change($event)">
+    <option v-for="option in options" :key="option.value" :value="option.value">
+      {{ option.text }}
+    </option>
+  </select>
 </template>
 
 <script>
@@ -48,6 +59,7 @@ export default {
       toggleIcon: null,
       icons: null,
       selectedIcon: null,
+      selected: this.modelValue,
     };
   },
 
@@ -58,7 +70,8 @@ export default {
   },
 
   watch: {
-    modelValue() {
+    modelValue(newValue) {
+      this.selected = newValue;
       this.checkOptions();
     },
     options: {
@@ -79,6 +92,9 @@ export default {
       this.selectedIcon = option.icon;
       this.opened = false;
       this.$emit('update:modelValue', option.value);
+    },
+    change(e) {
+      this.$emit('update:modelValue', e.target.value);
     },
     checkOptions() {
       this.itemIcon = null;
