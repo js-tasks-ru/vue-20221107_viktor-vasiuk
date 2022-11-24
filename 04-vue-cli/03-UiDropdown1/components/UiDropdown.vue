@@ -20,7 +20,7 @@
       </button>
     </div>
   </div>
-  <select v-model="selected" @change="change($event)">
+  <select v-show="false" v-model="selected" @change="change($event)">
     <option v-for="option in options" :key="option.value" :value="option.value">
       {{ option.text }}
     </option>
