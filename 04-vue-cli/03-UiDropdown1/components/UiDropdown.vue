@@ -1,7 +1,12 @@
 <template>
-  <div class="dropdown" :class="showOpened">
-    <button type="button" class="dropdown__toggle" :class="toggleIcon" @click="openedDropdown = !openedDropdown">
-      <ui-icon v-if="toggleIcon && selectedIcon" :icon="selectedIcon" class="dropdown__icon" />
+  <div class="dropdown" :class="{ dropdown_opened: openedDropdown }">
+    <button
+      type="button"
+      class="dropdown__toggle"
+      :class="{ dropdown__toggle_icon: hasIcon }"
+      @click="openedDropdown = !openedDropdown"
+    >
+      <ui-icon v-if="hasIcon && selectedIcon" :icon="selectedIcon" class="dropdown__icon" />
       <span>{{ selectedTitle }}</span>
     </button>
 
@@ -10,7 +15,7 @@
         v-for="option in options"
         :key="option.value"
         class="dropdown__item"
-        :class="itemIcon"
+        :class="{ dropdown__item_icon: hasIcon }"
         role="option"
         type="button"
         @click="select(option)"
@@ -20,7 +25,7 @@
       </button>
     </div>
   </div>
-  <select v-show="false" v-model="selected" @change="change($event)">
+  <select v-show="false" :value="modelValue" @change="change($event)">
     <option v-for="option in options" :key="option.value" :value="option.value">
       {{ option.text }}
     </option>
@@ -54,61 +59,43 @@ export default {
   data() {
     return {
       openedDropdown: false,
-      selectedTitle: null,
-      selectedIcon: null,
-      toggleIcon: null,
-      itemIcon: null,
-      selected: null,
     };
   },
 
   computed: {
-    showOpened() {
-      return this.openedDropdown ? 'dropdown_opened' : null;
+    hasIcon() {
+      for (let option of this.options) {
+        if (option.icon) {
+          return true;
+        }
+      }
+      return false;
     },
-  },
-
-  watch: {
-    modelValue() {
-      this.checkOptions();
+    selectedTitle() {
+      for (let option of this.options) {
+        if (option.value === this.modelValue) {
+          return option.text;
+        }
+      }
+      return this.title;
     },
-    options: {
-      handler() {
-        this.checkOptions();
-      },
-      deep: true,
+    selectedIcon() {
+      for (let option of this.options) {
+        if (option.value === this.modelValue) {
+          return option.icon;
+        }
+      }
+      return undefined;
     },
-  },
-
-  created() {
-    this.checkOptions();
   },
 
   methods: {
     select(option) {
-      this.selectedTitle = option.text;
-      this.selectedIcon = option.icon;
       this.openedDropdown = false;
       this.$emit('update:modelValue', option.value);
     },
     change(e) {
       this.$emit('update:modelValue', e.target.value);
-    },
-    checkOptions() {
-      this.itemIcon = null;
-      this.toggleIcon = null;
-      this.selectedTitle = this.title;
-      this.selected = this.modelValue;
-      for (let option of this.options) {
-        if (option.icon) {
-          this.itemIcon = 'dropdown__item_icon';
-          this.toggleIcon = 'dropdown__toggle_icon';
-        }
-        if (option.value === this.modelValue) {
-          this.selectedTitle = option.text;
-          this.selectedIcon = option.icon;
-        }
-      }
     },
   },
 };

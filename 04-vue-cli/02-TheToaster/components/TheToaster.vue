@@ -1,9 +1,8 @@
 <template>
   <div class="toasts">
-    <div v-for="toast in toasts.values()" :key="toast.timer" class="toast" :class="toast.type">
-      <ui-toast :icon="toast.icon" />
-      <span>{{ toast.message }}</span>
-    </div>
+    <ui-toast v-for="toast in toasts.values()" :key="toast.timer" :icon="toast.icon" :type="toast.type">
+      {{ toast.message }}
+    </ui-toast>
   </div>
 </template>
 
@@ -71,29 +70,12 @@ export default {
     right: 112px;
   }
 }
-.toast {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: row;
-  align-items: center;
-  padding: 16px;
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  font-size: 18px;
-  line-height: 28px;
-  width: auto;
-}
 
-.toast + .toast {
-  margin-top: 20px;
-}
-
-.toast.toast_success {
+.toast_success {
   color: var(--green);
 }
 
-.toast.toast_error {
+.toast_error {
   color: var(--red);
 }
 </style>
