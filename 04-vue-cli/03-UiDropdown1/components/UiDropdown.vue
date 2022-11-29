@@ -64,28 +64,15 @@ export default {
 
   computed: {
     hasIcon() {
-      for (let option of this.options) {
-        if (option.icon) {
-          return true;
-        }
-      }
-      return false;
+      return this.options.some((option) => option.icon && option.icon.length > 0);
     },
     selectedTitle() {
-      for (let option of this.options) {
-        if (option.value === this.modelValue) {
-          return option.text;
-        }
-      }
-      return this.title;
+      const found = this.options.find(({ value }) => value === this.modelValue);
+      return found ? found.text : this.title;
     },
     selectedIcon() {
-      for (let option of this.options) {
-        if (option.value === this.modelValue) {
-          return option.icon;
-        }
-      }
-      return undefined;
+      const found = this.options.find(({ value }) => value === this.modelValue);
+      return found ? found.icon : undefined;
     },
   },
 

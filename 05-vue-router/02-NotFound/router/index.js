@@ -12,5 +12,9 @@ export const router = createRouter({
       path: '/page-b',
       component: () => import('../views/PageB'),
     },
+    {
+      path: '/:catchAll(.*)*',
+      component: () => import('../views/PageNotFound.vue'),
+    },
   ],
 });
