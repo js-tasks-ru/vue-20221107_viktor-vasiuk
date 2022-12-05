@@ -81,7 +81,6 @@ export default {
         return;
       }
 
-      const lastState = this.state;
       this.state = States.LOADING;
 
       return this.uploader(file)

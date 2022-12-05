@@ -1,63 +1,68 @@
 <template>
-  <ui-input ref="input" :model-value="valueString" :type="type" @input="onInput($event)">
-    <template v-if="$slots['left-icon']" #left-icon>
-      <slot name="left-icon" />
-    </template>
-    <template v-if="$slots['left-icon']" #right-icon>
-      <slot name="right-icon" />
+  <ui-input :model-value="value" :type="type" @input="handleInput">
+    <template v-for="slot in Object.keys($slots)" #[slot]>
+      <slot :name="slot" />
     </template>
   </ui-input>
 </template>
 
 <script>
-import UiInput from './UiInput';
+  import UiInput from './UiInput';
 
-export default {
-  name: 'UiInputDate',
+  export default {
+    name: 'UiInputDate',
 
-  components: { UiInput },
+    components: { UiInput },
 
-  props: {
-    modelValue: [Number, String],
+    props: {
+      modelValue: Number,
 
-    type: {
-      type: String,
-      default: 'date',
+      type: {
+        type: String,
+        default: 'date',
+        validator: (type) => ['date', 'datetime-local', 'time'].includes(type),
+      },
     },
-  },
 
-  emits: ['update:modelValue'],
+    emits: ['update:modelValue'],
 
-  data() {
-    return {
-      value: null,
-    };
-  },
-
-  computed: {
-    valueString() {
-      switch (this.type) {
-        case 'date':
-          return this.modelValue ? new Date(this.modelValue).toISOString().slice(0, -14) : '';
-        case 'time':
-          return this.modelValue ? new Date(this.modelValue).toISOString().slice(11, -8) : '';
-        case 'datetime-local':
-          return this.modelValue ? new Date(this.modelValue).toISOString().slice(0, -8) : '';
-        default:
+    computed: {
+      value() {
+        // No value - empty string
+        if (typeof this.modelValue === 'undefined' || this.modelValue === null) {
           return '';
-      }
-    },
-  },
+        }
 
-  methods: {
-    onInput(event) {
-      if (event.target.value === '') {
-        this.$emit('update:modelValue', null);
-        return;
-      }
+        // YYYY-MM-DDTHH:MM:SS.mssZ
+        const date = new Date(this.modelValue).toISOString();
 
-      this.$emit('update:modelValue', event.target.valueAsNumber);
+        if (this.type === 'date') {
+          // https://developer.mozilla.org/ru/docs/Web/HTML/Element/Input/date
+          return date.substring(0, 10); // YYYY-MM-DD
+        } else if (this.type === 'datetime-local') {
+          // https://developer.mozilla.org/ru/docs/Web/HTML/Element/Input/datetime-local
+          return date.substring(0, 16); // YYYY-MM-DDTHH:MM
+        } else if (this.type === 'time') {
+          // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/time
+          return this.$attrs['step'] && this.$attrs['step'] % 60 !== 0
+            ? date.substring(11, 19) // HH:MM:SS
+            : date.substring(11, 16); // HH:MM
+        }
+
+        // Something wrong - empty string as no value
+        return '';
+      },
     },
-  },
-};
+
+    methods: {
+      handleInput($event) {
+        if ($event.target.value === '') {
+          this.$emit('update:modelValue', null);
+          return;
+        }
+
+        this.$emit('update:modelValue', $event.target.valueAsNumber);
+      },
+    },
+  };
 </script>
