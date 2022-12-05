@@ -7,25 +7,24 @@
 </template>
 
 <script>
-  import UiInput from './UiInput';
+import UiInput from './UiInput';
 
-  export default {
-    name: 'UiInputDate',
+export default {
+  name: 'UiInputDate',
 
-    components: { UiInput },
+  components: { UiInput },
 
   props: {
     modelValue: Number,
 
-      type: {
-        type: String,
-        default: 'date',
+    type: {
+      type: String,
+      default: 'date',
       validator: (type) => ['date', 'datetime-local', 'time'].includes(type),
-        validator: (type) => ['date', 'datetime-local', 'time'].includes(type),
-      },
     },
+  },
 
-    emits: ['update:modelValue'],
+  emits: ['update:modelValue'],
 
   computed: {
     value() {
@@ -53,6 +52,7 @@
       // Something wrong - empty string as no value
       return '';
     },
+  },
 
   methods: {
     handleInput($event) {
@@ -61,8 +61,8 @@
         return;
       }
 
-        this.$emit('update:modelValue', $$event.target.valueAsNumber);
-      },
+      this.$emit('update:modelValue', $event.target.valueAsNumber);
     },
-  };
+  },
+};
 </script>
