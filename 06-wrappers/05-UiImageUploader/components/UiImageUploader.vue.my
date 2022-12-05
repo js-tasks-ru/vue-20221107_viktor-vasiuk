@@ -1,0 +1,149 @@
+<template>
+  <div class="image-uploader">
+    <label :class="previewLoading" :style="`--bg-url: url('${preview}')`">
+      <span class="image-uploader__text">{{ text }}</span>
+      <input
+        ref="input"
+        type="file"
+        accept="image/*"
+        class="image-uploader__input"
+        v-bind="$attrs"
+        @change="select($event)"
+        @click="click($event)"
+      />
+    </label>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'UiImageUploader',
+
+  inheritAttrs: false,
+
+  props: {
+    preview: {
+      type: String,
+    },
+
+    uploader: {
+      type: Function,
+    },
+  },
+
+  emits: ['select', 'upload', 'error', 'remove'],
+
+  data() {
+    return {
+      loading: false,
+    };
+  },
+
+  computed: {
+    previewLoading() {
+      return this.loading ? 'image-uploader__preview image-uploader__preview-loading' : 'image-uploader__preview';
+    },
+
+    text() {
+      return this.previewProxy ? 'Удалить изображение' : this.loading ? 'Загрузка...' : 'Загрузить изображение';
+    },
+
+    previewProxy: {
+      get() {
+        return this.preview;
+      },
+
+      set(value) {
+        if (value) {
+          if (value.image) {
+            this.$emit('upload', value);
+          } else {
+            this.$emit('upload', { image: value });
+          }
+        } else {
+          this.$refs['input'].value = '';
+          this.$emit('remove');
+        }
+      },
+    },
+  },
+
+  methods: {
+    click(event) {
+      if (this.loading) {
+        event.preventDefault();
+      } else if (this.previewProxy) {
+        this.previewProxy = null;
+        event.preventDefault();
+      }
+    },
+
+    select(event) {
+      const file = event.target.files[0];
+      this.$emit('select', file);
+      if (this.uploader) {
+        this.uploaderWraper(file);
+      } else {
+        this.previewProxy = URL.createObjectURL(file);
+      }
+    },
+
+    uploaderWraper(file) {
+      this.loading = true;
+      this.uploader(file)
+        .then((resp) => {
+          this.previewProxy = resp;
+          this.loading = false;
+        })
+        .catch((error) => {
+          this.$refs['input'].value = '';
+          this.loading = false;
+          this.$emit('error', error);
+        });
+    },
+  },
+};
+</script>
+
+<style scoped>
+.image-uploader {
+}
+
+.image-uploader__input {
+  opacity: 0;
+  height: 0;
+}
+
+.image-uploader__preview {
+  --bg-url: var(--default-cover);
+  background-size: cover;
+  background-position: center;
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), var(--bg-url);
+  border: 2px solid var(--blue-light);
+  border-radius: 8px;
+  transition: 0.2s border-color;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 512px;
+  height: 228px;
+}
+
+.image-uploader__text {
+  color: var(--white);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.image-uploader__preview:hover {
+  border-color: var(--blue);
+}
+
+.image-uploader__preview.image-uploader__preview-loading {
+  cursor: no-drop;
+}
+</style>
