@@ -108,7 +108,7 @@ export default {
 
   methods: {
     handleSubmit() {
-      this.localMeetup.image = this.localMeetup.imageToUpload;
+      this.localMeetup.image = this.localMeetup.imageToUpload ? this.localMeetup.imageToUpload : this.localMeetup.image;
       this.$emit('submit', cloneDeep(this.localMeetup));
     },
 
