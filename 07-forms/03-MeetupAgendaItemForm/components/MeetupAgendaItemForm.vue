@@ -1,37 +1,42 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
+    <button type="button" class="agenda-item-form__remove-button" @click="$emit('remove')">
       <ui-icon icon="trash" />
     </button>
 
     <ui-form-group>
-      <ui-dropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <ui-dropdown v-model="localAgendaItem.type" title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
     </ui-form-group>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <ui-form-group label="Начало">
-          <ui-input type="time" placeholder="00:00" name="startsAt" />
+          <ui-input v-model="localAgendaItem.startsAt" type="time" placeholder="00:00" name="startsAt" />
         </ui-form-group>
       </div>
       <div class="agenda-item-form__col">
         <ui-form-group label="Окончание">
-          <ui-input type="time" placeholder="00:00" name="endsAt" />
+          <ui-input v-model="localAgendaItem.endsAt" type="time" placeholder="00:00" name="endsAt" />
         </ui-form-group>
       </div>
     </div>
 
-    <ui-form-group label="Тема">
-      <ui-input name="title" />
+    <ui-form-group :label="labelTitle">
+      <ui-input v-model="localAgendaItem.title" name="title" />
     </ui-form-group>
-    <ui-form-group label="Докладчик">
-      <ui-input name="speaker" />
+    <ui-form-group v-if="isTalk" label="Докладчик">
+      <ui-input v-model="localAgendaItem.speaker" name="speaker" />
     </ui-form-group>
-    <ui-form-group label="Описание">
-      <ui-input multiline name="description" />
+    <ui-form-group v-if="isTalkOrOther" label="Описание">
+      <ui-input v-model="localAgendaItem.description" multiline name="description" />
     </ui-form-group>
-    <ui-form-group label="Язык">
-      <ui-dropdown title="Язык" :options="$options.talkLanguageOptions" name="language" />
+    <ui-form-group v-if="isTalk" label="Язык">
+      <ui-dropdown
+        v-model="localAgendaItem.language"
+        title="Язык"
+        :options="$options.talkLanguageOptions"
+        name="language"
+      />
     </ui-form-group>
   </fieldset>
 </template>
@@ -88,6 +93,71 @@ export default {
     agendaItem: {
       type: Object,
       required: true,
+    },
+  },
+
+  emits: ['remove', 'update:agendaItem'],
+
+  data() {
+    return {
+      localAgendaItem: { ...this.agendaItem },
+      duration: 0,
+    };
+  },
+
+  computed: {
+    labelTitle() {
+      return this.localAgendaItem.type === 'talk'
+        ? 'Тема'
+        : this.localAgendaItem.type === 'other'
+        ? 'Заголовок'
+        : 'Нестандартный текст (необязательно)';
+    },
+
+    isTalk() {
+      return this.localAgendaItem.type === 'talk';
+    },
+
+    isTalkOrOther() {
+      return this.localAgendaItem.type === 'talk' || this.localAgendaItem.type === 'other';
+    },
+  },
+
+  watch: {
+    localAgendaItem: {
+      deep: true,
+      handler() {
+        this.$emit('update:agendaItem', { ...this.localAgendaItem });
+      },
+    },
+
+    'localAgendaItem.startsAt': function (newVal) {
+      if (this.duration !== 0) {
+        let end = this.getMinutes(newVal) + this.duration;
+        end = end > 1440 ? end - 1440 : end;
+        const hours = parseInt(end / 60, 10);
+        const minutes = end % 60;
+        this.localAgendaItem.endsAt = this.format(hours) + ':' + this.format(minutes);
+      }
+    },
+
+    'localAgendaItem.endsAt': function () {
+      this.duration = this.getMinutes(this.localAgendaItem.endsAt) - this.getMinutes(this.localAgendaItem.startsAt);
+    },
+  },
+
+  mounted() {
+    this.duration = this.getMinutes(this.agendaItem.endsAt) - this.getMinutes(this.agendaItem.startsAt);
+  },
+
+  methods: {
+    getMinutes(time) {
+      const words = time.split(':');
+      return parseInt(words[0], 10) * 60 + parseInt(words[1], 10);
+    },
+
+    format(number) {
+      return number.toString().padStart(2, '0');
     },
   },
 };
