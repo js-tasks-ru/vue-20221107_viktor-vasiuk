@@ -9,6 +9,9 @@
 import { SensorsDataController } from '../services/SensorsDataController';
 import { SensorsDataStreamingService } from '../services/SensorsDataStreamingService';
 import SensorsDataRow from './SensorsDataRow';
+import { cloneDeep } from 'lodash-es';
+
+let sensors = null;
 
 export default {
   name: 'SensorsDataView',
@@ -42,7 +45,7 @@ export default {
     },
 
     setData(sensors) {
-      this.sensors = sensors;
+      this.sensors = cloneDeep(sensors);
     },
   },
 };
