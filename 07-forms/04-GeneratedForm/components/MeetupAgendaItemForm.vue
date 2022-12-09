@@ -26,11 +26,7 @@
       :key="value.label"
       :label="value.label"
     >
-      <component
-        :is="value.component"
-        v-model="localAgendaItem[value.props.name]"
-        v-bind="{ ...value.props }"
-      ></component>
+      <component :is="value.component" v-model="localAgendaItem[value.props.name]" v-bind="value.props"></component>
     </ui-form-group>
   </fieldset>
 </template>

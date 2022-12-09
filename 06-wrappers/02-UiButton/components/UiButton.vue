@@ -1,12 +1,11 @@
 <template>
   <component
     :is="tag"
-    class="button"
+    class="button button_danger"
     :class="[
       { button_block: block },
       { button_primary: variant === 'primary' },
       { button_secondary: variant === 'secondary' },
-      'button_danger',
     ]"
     :type="validType"
   >
