@@ -146,7 +146,7 @@ export default {
     },
   },
 
-  mounted() {
+  created() {
     this.duration = this.getMinutes(this.agendaItem.endsAt) - this.getMinutes(this.agendaItem.startsAt);
   },
 

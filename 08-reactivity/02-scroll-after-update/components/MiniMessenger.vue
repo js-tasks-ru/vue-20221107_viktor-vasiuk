@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import { nextTick } from 'vue';
+
 let lastId = 0;
 
 export default {
@@ -36,12 +38,15 @@ export default {
       this.send();
     },
 
-    send() {
+    async send() {
       this.messages.push({
         id: lastId++,
         text: this.newMessage,
       });
       this.newMessage = '';
+      await nextTick();
+      const lastEl = this.$refs.items[lastId - 1];
+      lastEl.scrollIntoView();
     },
   },
 };

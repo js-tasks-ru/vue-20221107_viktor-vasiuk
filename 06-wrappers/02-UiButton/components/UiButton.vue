@@ -6,7 +6,7 @@
       { button_block: block },
       { button_primary: variant === 'primary' },
       { button_secondary: variant === 'secondary' },
-      'button_danger',
+      { button_danger: variant === 'danger' },
     ]"
     :type="validType"
   >
