@@ -1,4 +1,4 @@
-import { computed, watch, ref, isRef } from 'vue';
+import { computed, unref } from 'vue';
 
 /**
  * @template T
@@ -8,15 +8,7 @@ import { computed, watch, ref, isRef } from 'vue';
 export function reactify(func) {
   return (...args) =>
     computed(() => {
-      const r = ref(args);
-      let array = [];
-      watch(
-        r,
-        () => {
-          array = args.map((item) => (isRef(item) ? item.value : item));
-        },
-        { immediate: true },
-      );
+      const array = args.map((item) => unref(item));
       return func(...array);
     });
 }
